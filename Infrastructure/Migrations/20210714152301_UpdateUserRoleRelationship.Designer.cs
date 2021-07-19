@@ -4,14 +4,16 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(MovieShopDbContext))]
-    partial class MovieShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210714152301_UpdateUserRoleRelationship")]
+    partial class UpdateUserRoleRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -200,7 +202,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("MovieId", "CastId", "Character");
+                    b.HasKey("MovieId", "CastId");
 
                     b.HasIndex("CastId");
 
@@ -223,9 +225,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.HasKey("MovieId", "CrewId", "Department", "Job");
-
-                    b.HasIndex("CrewId");
+                    b.HasKey("MovieId", "CrewId");
 
                     b.ToTable("MovieCrew");
                 });
@@ -377,6 +377,21 @@ namespace Infrastructure.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("CrewMovie", b =>
+                {
+                    b.Property<int>("CrewsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MoviesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CrewsId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("CrewMovie");
+                });
+
             modelBuilder.Entity("MovieGenre", b =>
                 {
                     b.Property<int>("GenreId")
@@ -445,25 +460,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Entities.MovieCrew", b =>
-                {
-                    b.HasOne("ApplicationCore.Entities.Crew", "Crew")
-                        .WithMany("MovieCrews")
-                        .HasForeignKey("CrewId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApplicationCore.Entities.Movie", "Movie")
-                        .WithMany("MovieCrews")
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Crew");
-
-                    b.Navigation("Movie");
-                });
-
             modelBuilder.Entity("ApplicationCore.Entities.Purchase", b =>
                 {
                     b.HasOne("ApplicationCore.Entities.Movie", "Movie")
@@ -509,6 +505,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("CrewMovie", b =>
+                {
+                    b.HasOne("ApplicationCore.Entities.Crew", null)
+                        .WithMany()
+                        .HasForeignKey("CrewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationCore.Entities.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MovieGenre", b =>
                 {
                     b.HasOne("ApplicationCore.Entities.Genre", null)
@@ -544,18 +555,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("MovieCasts");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Entities.Crew", b =>
-                {
-                    b.Navigation("MovieCrews");
-                });
-
             modelBuilder.Entity("ApplicationCore.Entities.Movie", b =>
                 {
                     b.Navigation("Favorates");
 
                     b.Navigation("MovieCasts");
-
-                    b.Navigation("MovieCrews");
 
                     b.Navigation("Purchases");
 

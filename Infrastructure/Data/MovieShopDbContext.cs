@@ -16,6 +16,7 @@ namespace Infrastructure.Data
         // DbSets are properties
         public DbSet<Genre>  Genres { get; set; }
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<Cast> Casts { get; set; }
         public DbSet<Trailer> Trailers { get; set; }
         public DbSet<Crew> Crews { get; set; }
         public DbSet<Role> Users { get; set; }
@@ -36,6 +37,17 @@ namespace Infrastructure.Data
             modelBuilder.Entity<MovieCrew>(ConfigureMovieCrew);
             modelBuilder.Entity<Review>(ConfigureReview);
             modelBuilder.Entity<Purchase>(ConfigurePurchase);
+
+
+            modelBuilder.Entity<Movie>().HasMany(m => m.Genres).WithMany(g => g.Movies)
+                .UsingEntity<Dictionary<string, object>>("MovieGenre",
+                m => m.HasOne<Genre>().WithMany().HasForeignKey("GenreId"),
+                g => g.HasOne<Movie>().WithMany().HasForeignKey("MovieId"));
+
+            modelBuilder.Entity<User>().HasMany(u => u.Roles).WithMany(r => r.Users)
+                 .UsingEntity<Dictionary<string, object>>("UserRole",
+                 u => u.HasOne<Role>().WithMany().HasForeignKey("RoleId"),
+                 r => r.HasOne<User>().WithMany().HasForeignKey("UserId"));
         }
 
         private void ConfigureTrailer(EntityTypeBuilder<Trailer> builder)
@@ -71,13 +83,17 @@ namespace Infrastructure.Data
         private void ConfigureMovieCast(EntityTypeBuilder<MovieCast> builder)
         {
             builder.ToTable("MovieCast");
-            builder.HasKey(mc => new { mc.MovieId, mc.CastId});
+            builder.HasKey(mc => new { mc.MovieId, mc.CastId, mc.Character});
+            builder.HasOne(mc => mc.Movie).WithMany(mc => mc.MovieCasts).HasForeignKey(mc => mc.MovieId);
+            builder.HasOne(mc => mc.Cast).WithMany(mc => mc.MovieCasts).HasForeignKey(mc => mc.CastId);
             builder.Property(mc => mc.Character).HasMaxLength(450);
         }
         private void ConfigureMovieCrew(EntityTypeBuilder<MovieCrew> builder)
         {
             builder.ToTable("MovieCrew");
-            builder.HasKey(mc => new { mc.MovieId, mc.CrewId });
+            builder.HasKey(mc => new { mc.MovieId, mc.CrewId, mc.Department, mc.Job });
+            builder.HasOne(mc => mc.Movie).WithMany(mc => mc.MovieCrews).HasForeignKey(mc => mc.MovieId);
+            builder.HasOne(mc => mc.Crew).WithMany(mc => mc.MovieCrews).HasForeignKey(mc => mc.CrewId);
             builder.Property(mc => mc.Department).HasMaxLength(128);
             builder.Property(mc => mc.Job).HasMaxLength(128);
         }

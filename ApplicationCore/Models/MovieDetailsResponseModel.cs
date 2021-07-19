@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace ApplicationCore.Entities
+namespace ApplicationCore.Models
 {
-    public class Movie
+    public class MovieDetailsResponseModel
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -23,17 +24,8 @@ namespace ApplicationCore.Entities
         public DateTime? UpdatedDate { get; set; }
         public string UpdatedBy { get; set; }
         public string CreatedBy { get; set; }
-
-        // Going to ignore
         public decimal? Rating { get; set; }
-
-        // Navigation
-        public ICollection<Trailer> Trailers { get; set; }
-        public ICollection<Genre> Genres { get; set; }
-        public ICollection<MovieCast> MovieCasts { get; set; }
-        public ICollection<MovieCrew> MovieCrews{ get; set; }
-        public ICollection<Review> Reviews { get; set; }
-        public ICollection<Favorite> Favorates { get; set; }
-        public ICollection<Purchase> Purchases  { get; set; }
+        public List<CastResponseModel> Casts { get; set; }
+        public List<GenreModel> Genres { get; set; }
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
+using ApplicationCore.RepositoryInterfaces;
+using Infrastructure.Repositories;
 
 namespace MovieShopMVC
 {
@@ -24,6 +26,11 @@ namespace MovieShopMVC
         {
             services.AddControllersWithViews();
             services.AddScoped<IMovieService, MovieService>();
+            services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<ICastService, CastService>();
+            services.AddScoped<IMovieRepository, MovieRepository>();
+            services.AddScoped<IGenreRepository, GenreRepository>();
+            services.AddScoped<ICastRepository, CastRepository>();
             // services.AddScoped<IMovieService, MovieService2>();
             // 3rdy party IOC Autofac, Ninject
             // ASP.NET Core has buil;tin support for DI and it has built-in container
@@ -62,7 +69,7 @@ namespace MovieShopMVC
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Privacy}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

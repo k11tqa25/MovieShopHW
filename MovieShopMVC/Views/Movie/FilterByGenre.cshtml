@@ -1,7 +1,7 @@
-﻿@model List< ApplicationCore.Models.MovieCardResponseModel>
+﻿@model List<ApplicationCore.Models.MovieCardResponseModel>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] =  ViewData["CurrentGenre"];
 }
 
 <div class="rounded">
@@ -12,12 +12,10 @@
                 <div class="col-2 ">
                     @* Two ways to create partial view: *@
                     @*<partial name="_MovieCard" model="movie"/>*@
-                    @await Html.PartialAsync(partialViewName:"_MovieCard", model:movie)
+                    @await Html.PartialAsync(partialViewName: "_MovieCard", model: movie)
                 </div>
             }
         </div>
     </div>
 </div>
-
-
 

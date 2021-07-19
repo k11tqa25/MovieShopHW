@@ -18,7 +18,7 @@ namespace ApplicationCore.Entities
         [MaxLength(2084)]
         public string ProfilePath { get; set; }
 
-        public ICollection<Movie> Movies { get; set; }
+        public ICollection<MovieCrew> MovieCrews { get; set; }
 
 
     }

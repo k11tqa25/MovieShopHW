@@ -11,7 +11,7 @@ using ApplicationCore.ServiceInterfaces;
 
 namespace MovieShopMVC.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         // Each and every rwqeust in MVC controller
         // localhost/home/index
@@ -21,11 +21,12 @@ namespace MovieShopMVC.Controllers
         // 3. Property Injection
 
         private readonly IMovieService _movieService;
+        private readonly IGenreService _genreService;
 
-        public HomeController(IMovieService movieService)
+        public HomeController(IMovieService movieService, IGenreService genreService): base(genreService)
         {
             _movieService = movieService;
-            
+            _genreService = genreService;            
         }
 
         public IActionResult Privacy()
@@ -33,13 +34,9 @@ namespace MovieShopMVC.Controllers
             return View();
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-
-            var movies = _movieService.GetTopRevenueMovies();
-
-            var myType = movies.GetType();
-
+            var movies =await _movieService.GetTopRevenueMoviesAsync();
             // 3 ways to send the data from Controller/action to View
             // 1.*** Models (strongly typed models)
             // 2. ViewBag
@@ -50,7 +47,6 @@ namespace MovieShopMVC.Controllers
             return View(movies);
         }
                 
-
         // HomeController   
         // MovieController       MovieService
         // UserController
