@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace MovieShopMVC.Controllers
 {
-    public class MovieController : BaseController
+    public class MovieController : Controller
     {
         private readonly IMovieService _movieService;
         private readonly IGenreService _genreService;
 
-        public MovieController(IMovieService movieService, IGenreService genreService): base(genreService)
+        public MovieController(IMovieService movieService, IGenreService genreService)
         {
             _movieService = movieService;
             _genreService = genreService;

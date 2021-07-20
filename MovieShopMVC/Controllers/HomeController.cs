@@ -11,7 +11,7 @@ using ApplicationCore.ServiceInterfaces;
 
 namespace MovieShopMVC.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
         // Each and every rwqeust in MVC controller
         // localhost/home/index
@@ -21,12 +21,10 @@ namespace MovieShopMVC.Controllers
         // 3. Property Injection
 
         private readonly IMovieService _movieService;
-        private readonly IGenreService _genreService;
 
-        public HomeController(IMovieService movieService, IGenreService genreService): base(genreService)
+        public HomeController(IMovieService movieService)
         {
             _movieService = movieService;
-            _genreService = genreService;            
         }
 
         public IActionResult Privacy()

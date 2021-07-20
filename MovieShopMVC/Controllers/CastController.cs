@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace MovieShopMVC.Controllers
 {
-    public class CastController : BaseController
+    public class CastController : Controller
     {
         private readonly ICastService _castService ; 
-        public CastController( ICastService castService, IGenreService genreService): base(genreService) 
+        public CastController( ICastService castService)
         {
             _castService = castService;
         }

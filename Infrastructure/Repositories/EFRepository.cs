@@ -20,7 +20,12 @@ namespace Infrastructure.Repositories
 
         public virtual async Task<T> AddAsync(T entity)
         {
-            throw new NotImplementedException();
+             // This will be saved in the memory, not in database.
+            await _dbContext.Set<T>().AddAsync(entity);
+            // Save to database
+            await _dbContext.SaveChangesAsync();
+            // This will contain the newly created primary key!
+            return entity;
         }
 
         public virtual async Task<T> DeleteAsync(T entity)

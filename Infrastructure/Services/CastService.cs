@@ -17,10 +17,10 @@ namespace Infrastructure.Services
         {
             _castRepository = castRepository;
         }
-        public async Task<CastResponseModel> GetCastDetailsAsync(int cast_id, int movie_id)
+        public async Task<CastResponseModel> GetCastDetailsAsync(int castId, int movieId)
         {
-            var cast = await _castRepository.GetCastByIdWithAllInfoAsync(cast_id);
-            string character = cast.MovieCasts.Where(mc => mc.MovieId == movie_id).FirstOrDefault().Character;
+            var cast = await _castRepository.GetCastByIdWithAllInfoAsync(castId);
+            string character = cast.MovieCasts.Where(mc => mc.MovieId == movieId).FirstOrDefault().Character;
             return new CastResponseModel
             {
                 Id = cast.Id,

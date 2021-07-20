@@ -36,7 +36,7 @@
             <div class="container w-75 d-flex justify-content-start align-items-end flex-column mt-5 p-0  float-right">
                 <button type="button" class="btn btn-outline-light mb-3 w-100" style="font-size: 9px"><i class="fa fa-pencil-square-o"></i> REVIEW</button>
                 <button type="button" class="btn btn-outline-light mb-3 w-100"  style="font-size: 9px"><i class="fa fa-play"></i> TRAILER</button>
-                <button type="button" class="btn btn-light mb-1 w-100"  style="font-size: 9px">BUY @Model.Price</button>
+                <a class="btn btn-light mb-1 w-100"  style="font-size: 9px" asp-controller="User" asp-action="ConfirmPurchase" asp-route-id="@Model.Id">BUY @Model.Price</a>
                 <button type="button" class="btn btn-light mb-1 w-100"  style="font-size: 9px">WATCH MORE</button>
             </div>
         </div>
@@ -66,8 +66,8 @@
                         @{
                             var parms = new Dictionary<string, string>
                             {
-                                { "cast_id",  cast.Id.ToString() },
-                                { "movie_id",  Model.Id.ToString() }
+                                { "castId",  cast.Id.ToString() },
+                                { "movieId",  Model.Id.ToString() }
                             };
                         }
 

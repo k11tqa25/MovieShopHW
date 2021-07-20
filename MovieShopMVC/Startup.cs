@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
 using ApplicationCore.RepositoryInterfaces;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System;
 
 namespace MovieShopMVC
 {
@@ -28,16 +30,25 @@ namespace MovieShopMVC
             services.AddScoped<IMovieService, MovieService>();
             services.AddScoped<IGenreService, GenreService>();
             services.AddScoped<ICastService, CastService>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+            services.AddScoped<IPurchaseService, PurchaseService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMovieRepository, MovieRepository>();
             services.AddScoped<IGenreRepository, GenreRepository>();
             services.AddScoped<ICastRepository, CastRepository>();
-            // services.AddScoped<IMovieService, MovieService2>();
-            // 3rdy party IOC Autofac, Ninject
-            // ASP.NET Core has buil;tin support for DI and it has built-in container
-            // ASP.NET Framework there was no DI, Autofac, Ninject
-            // Reflection ?
-            // get me total number of methods and properties in a class
-            // System.Relection
+            services.AddScoped<IPurchaseRepository, PurchaseRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            // This will inject HttpContext to IHttpContextAccessor 
+            services.AddHttpContextAccessor();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.Cookie.Name = "MovieShopAuth";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(2);
+                    options.LoginPath = "/Account/Login";  // if the cookie auth fails, go to this url
+                });
 
             //Inject connection string to DbContext
             services.AddDbContext<MovieShopDbContext>(options => {
@@ -62,6 +73,9 @@ namespace MovieShopMVC
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            //Auth for cookie (before Authorization)
+            app.UseAuthentication(); 
 
             app.UseAuthorization();
 
