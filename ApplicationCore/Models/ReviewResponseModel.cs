@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApplicationCore.Entities
+namespace ApplicationCore.Models
 {
-    public class Review
+    public class ReviewResponseModel
     {
         public int MovieId { get; set; }
         public int UserId { get; set; }
+        public string MovieTitle{ get; set; }
+        public string UserName{ get; set; }
+        public string Review{ get; set; }
         public decimal Rating { get; set; }
-        public string ReviewText { get; set; }
-
-        public Movie Movie { get; set; }
-        public User User { get; set; }
     }
 }

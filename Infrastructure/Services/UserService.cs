@@ -7,20 +7,202 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Security.Cryptography;
 using System;
 using ApplicationCore.Entities;
+using System.Collections.Generic;
 
 namespace Infrastructure.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IPurchaseRepository _purchaseRepository;
+        private readonly IMovieRepository _movieRepository;
+        private readonly IReviewRepository _reviewRepository;
+        private readonly IFavoriteRepository _favoriteRepository;
+
+        public UserService(IUserRepository userRepository, IPurchaseRepository purchaseRepository, IMovieRepository movieRepository, IReviewRepository reviewRepository, IFavoriteRepository favoriteRepository)
         {
             _userRepository = userRepository;
+            _purchaseRepository = purchaseRepository;
+            _movieRepository = movieRepository;
+            _reviewRepository = reviewRepository;
+            _favoriteRepository = favoriteRepository;
+        }
+
+        public async Task<FavoriteResponseModel> AddFavoriteAsync(FavoriteRequestModel favoriteModel)
+        {
+            var favorite = new Favorite()
+            {
+                MovieId = favoriteModel.MovieId,
+                UserId = favoriteModel.UserId
+            };
+
+            var newFavorite  = await _favoriteRepository.AddAsync(favorite);
+            var movie = await _movieRepository.GetByIdAsync(favoriteModel.MovieId);
+            var user = await _userRepository.GetByIdAsync(favoriteModel.UserId);
+            return new FavoriteResponseModel
+            {
+                UserId = newFavorite.UserId,
+                MovieId = newFavorite.MovieId,
+                MovieTitle = movie.Title,
+                UserName = user.FirstName + " " + user.LastName,
+            };
+        }
+
+        public async Task<PurchaseResponseModel> AddPurchaseAsync(PurchaseRequestModel purchaseModel)
+        {
+            var movie = await _movieRepository.GetByIdAsync(purchaseModel.MovieId);
+
+            if (movie == null) return null;
+
+           var newPurchase = await _purchaseRepository.AddAsync(new Purchase() { 
+                MovieId = purchaseModel.MovieId,
+                UserId = purchaseModel.UserId,
+                PurchaseDateTime = DateTime.Now,
+                TotalPrice = movie.Price.GetValueOrDefault()
+            });
+
+            return new PurchaseResponseModel
+            {
+                Id = newPurchase.Id,
+                MovieId = newPurchase.MovieId,
+                UserId = newPurchase.UserId,
+                MovieTitle = newPurchase.Movie.Title,
+                UserName = newPurchase.User.FirstName + " " + newPurchase.User.LastName,
+                Price = newPurchase.Movie.Price.GetValueOrDefault(),
+                PurchaseDate = newPurchase.PurchaseDateTime
+            };
+        }
+
+        public async Task<ReviewResponseModel> AddReviewAsync(ReviewRequestModel reviewModel)
+        {
+            var review = new Review()
+            {
+                MovieId = reviewModel.MovieId,
+                UserId = reviewModel.UserId,
+                Rating = reviewModel.Rating,
+                ReviewText = reviewModel.ReviewText
+            };
+
+            var newReview = await _reviewRepository.AddAsync(review);
+            var movie = await _movieRepository.GetByIdAsync(review.MovieId);
+            var user = await _userRepository.GetByIdAsync(review.UserId);
+
+            return new ReviewResponseModel
+            {
+                MovieId = newReview.MovieId,
+                UserId = newReview.UserId,
+                Rating = newReview.Rating,
+                Review = newReview.ReviewText,
+                MovieTitle = movie.Title,
+                UserName = user.FirstName + " " + user.LastName
+            };
+        }
+
+        public async Task<ReviewResponseModel> UpdateReviewAsync(ReviewRequestModel reviewModel)
+        {
+            var review = new Review()
+            {
+                MovieId = reviewModel.MovieId,
+                UserId = reviewModel.UserId,
+                Rating = reviewModel.Rating,
+                ReviewText = reviewModel.ReviewText
+            };
+
+            var newReview = await _reviewRepository.UpdateAsync(review);
+            var movie = await _movieRepository.GetByIdAsync(review.MovieId);
+            var user = await _userRepository.GetByIdAsync(review.UserId);
+
+            return new ReviewResponseModel
+            {
+                MovieId = newReview.MovieId,
+                UserId = newReview.UserId,
+                Rating = newReview.Rating,
+                Review = newReview.ReviewText,
+                MovieTitle = movie.Title,
+                UserName = user.FirstName + " " + user.LastName
+            };
+        }
+
+        public async Task<bool> RemoveReviewAsync(int userId, int movieId)
+        {
+            var review = await _reviewRepository.GetReviewByIdAsync(userId, movieId);
+            await _reviewRepository.DeleteAsync(review);
+            return true;
+        }
+
+        public async Task<List<ReviewResponseModel>> GetUserReviewsAsync(int id)
+        {
+            var user = await _userRepository.GetUserReviewsAsync(id);
+            var response = new List<ReviewResponseModel>();
+            foreach (var review in user.Reviews)
+            {
+                response.Add(new ReviewResponseModel()
+                {
+                    MovieId = review.MovieId,
+                    UserId = review.UserId,
+                    MovieTitle = review.Movie.Title,
+                    UserName = user.FirstName + " " + user.LastName,
+                    Rating = review.Rating,
+                    Review = review.ReviewText
+                });
+
+            }
+            return response;
+        }
+
+        public  async Task<UserResponseModel> GetUserByIdAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            var userResponseModel = new UserResponseModel()
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                DateOfBirth = user.DateOfBirth
+            };
+            return userResponseModel;
+        }
+
+        public async Task<List<PurchaseResponseModel>> GetUserPurchasesAsync(int id)
+        {
+            var user = await _userRepository.GetUserPurchasesAsync(id);
+            var response = new List<PurchaseResponseModel>();
+            foreach (var p in user.Purchases)
+            {
+                response.Add(new PurchaseResponseModel()
+                {
+                    MovieId = p.MovieId,
+                    UserId = p.UserId,
+                    MovieTitle = p.Movie.Title,
+                    UserName = p.User.FirstName + " " + p.User.LastName,
+                    Price = p.TotalPrice,
+                    PurchaseDate = p.PurchaseDateTime
+                });
+            }
+            return response;
+        }
+
+        public async Task<List<FavoriteResponseModel>> GetUserFavoritesAsync(int id)
+        {
+            var user = await _userRepository.GetUserFavoritesAsync(id);
+            var response = new List<FavoriteResponseModel>();
+            foreach (var favorite in user.Favorates)
+            {
+                response.Add(new FavoriteResponseModel()
+                {
+                    MovieId = favorite.MovieId,
+                    UserId = favorite.UserId,
+                    MovieTitle = favorite.Movie.Title,
+                    UserName = favorite.User.FirstName + " " + favorite.User.LastName
+                });
+            }
+            return response;
         }
 
         public async Task<UserLoginResponseModel> LoginAsync(string email, string password)
         {
-            var dbUser = await _userRepository.GetUserByEmail(email);
+            var dbUser = await _userRepository.GetUserByEmailAsync(email);
             if(dbUser == null)
             {
                 throw new NotFoundException("Email does not exist. Please register first.");
@@ -49,7 +231,7 @@ namespace Infrastructure.Services
         public async Task<UserRegisterResponseModel> RegisterUserAsync(UserRegisterRequestModel requestModel)
         {
             // 1. Make sure the email does not exists in the database User table
-            var dbUser = await _userRepository.GetUserByEmail(requestModel.Email);
+            var dbUser = await _userRepository.GetUserByEmailAsync(requestModel.Email);
             if(dbUser != null)
             {
                 // Already have user with the same email
@@ -84,6 +266,13 @@ namespace Infrastructure.Services
             };
 
             return userResponse;
+        }
+
+        public async Task<bool> RemoveFavoriteAsync(FavoriteRequestModel favoriteModel)
+        {
+            var favorite = await _favoriteRepository.GetFavoriteAsync(favoriteModel.MovieId, favoriteModel.UserId);
+            await _favoriteRepository.DeleteAsync(favorite);
+            return true;
         }
 
         private string CreateSalt()

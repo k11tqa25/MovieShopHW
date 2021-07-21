@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace ApplicationCore.ServiceInterfaces
 {
-    public interface IPurchaseService
+    public interface IFavoriteService
     {
-        Task<PurchaseResponseModel> MakePurchaseAsync(int userId, int movieId);
-
-        Task<List<PurchaseResponseModel>> GetAllPurchasesAsync();
+        Task<FavoriteResponseModel> GetFavoriteByIdAsync(int id, int movieId);
     }
 }

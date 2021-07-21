@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
                                                                                    .FirstOrDefaultAsync(m => m.Id == id);
             if(movie == null)
             {
-                throw new Exception($"No movie found with id = {id}");
+                return null;
             }
 
             var movieRating = await _dbContext.Reviews.Where(r => r.MovieId == id)
@@ -47,6 +47,26 @@ namespace Infrastructure.Repositories
             var genre = await _dbContext.Genres.Include(g => g.Movies).Where(g => g.Id == genre_id).FirstOrDefaultAsync();
 
             return genre.Movies.ToList();
+        }
+
+        public async Task<List<Movie>> GetHightset30TopRatingMoviesAsync()
+        {
+            var topMovieIds = _dbContext.Movies.Include(m => m.Reviews).GroupBy(m => m.Id)
+                                                                                                                                    .Select(m => new { key = m.Key, average = m.Select( x => (int?)x.Rating).Average() })
+                                                                                                                                    .OrderByDescending(m => m.average)
+                                                                                                                                    .Take(30)
+                                                                                                                                    .Select(m => m.key)
+                                                                                                                                    .ToHashSet();
+
+
+            var movies = await _dbContext.Movies.Where(m => topMovieIds.Contains(m.Id)).ToListAsync();
+            return movies;            
+        }
+
+        public async Task<Movie> GetMovieWithReviewsAsync(int id)
+        {
+            var movie = await _dbContext.Movies.Include(m => m.Reviews).ThenInclude(r => r.User).Where(m => m.Id == id).FirstOrDefaultAsync();
+            return movie;
         }
     }
 }

@@ -22,6 +22,27 @@ namespace Infrastructure.Services
             _userRepository = userRepository;
         }
 
+        public async Task<List<PurchaseResponseModel>> GetAllPurchasesAsync()
+        {
+            var purchases = await _purchaseRepository.ListAllAsync();
+            var response = new List<PurchaseResponseModel>();
+            foreach (var p in purchases)
+            {
+                response.Add(new PurchaseResponseModel()
+                {
+                    Id = p.Id,
+                    MovieId = p.MovieId,
+                    UserId = p.UserId,
+                    MovieTitle = p.Movie.Title,
+                    UserName = p.User.FirstName + " " + p.User.LastName,
+                    PurchaseDate = p.PurchaseDateTime,
+                    Price = p.TotalPrice
+                });
+            }
+
+            return response;
+        }
+
         public async Task<PurchaseResponseModel> MakePurchaseAsync(int userId, int movieId)
         {
             var user = await _userRepository.GetByIdAsync(userId);

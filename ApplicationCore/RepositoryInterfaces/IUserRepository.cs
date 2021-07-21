@@ -7,6 +7,15 @@ namespace ApplicationCore.RepositoryInterfaces
 {
     public interface IUserRepository: IAsyncRepository<User>
     {
-        Task<User> GetUserByEmail(string email);
+        Task<User> GetUserByEmailAsync(string email);
+
+        Task<User> GetUserPurchasesAsync(int id);
+
+        Task<User> GetUserReviewsAsync(int id);
+
+        Task<User> GetUserFavoritesAsync(int id);
+
+        
+                
     }
 }
