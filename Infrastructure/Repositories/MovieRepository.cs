@@ -51,16 +51,41 @@ namespace Infrastructure.Repositories
 
         public async Task<List<Movie>> GetHightset30TopRatingMoviesAsync()
         {
-            var topMovieIds = _dbContext.Movies.Include(m => m.Reviews).GroupBy(m => m.Id)
-                                                                                                                                    .Select(m => new { key = m.Key, average = m.Select( x => (int?)x.Rating).Average() })
-                                                                                                                                    .OrderByDescending(m => m.average)
-                                                                                                                                    .Take(30)
-                                                                                                                                    .Select(m => m.key)
-                                                                                                                                    .ToHashSet();
+            //var topMovieIds = _dbContext.Movies.Include(m => m.Reviews).GroupBy(m => m.Id)
+            //                                                                                                                        .Select(m => new { key = m.Key, average = m.Select( x => (int?)x.Rating).Average() })
+            //                                                                                                                        .OrderByDescending(m => m.average)
+            //                                                                                                                        .Take(30)
+            //                                                                                                                        .Select(m => m.key)
+            //                                                                                                                        .ToHashSet();
 
 
-            var movies = await _dbContext.Movies.Where(m => topMovieIds.Contains(m.Id)).ToListAsync();
-            return movies;            
+            //var movies = await _dbContext.Movies.Where(m => topMovieIds.Contains(m.Id)).ToListAsync();
+            //return movies;
+
+
+            var topRatedMovies = await _dbContext.Reviews.Include(m => m.Movie)
+                                                 .GroupBy(r => new
+                                                 {
+                                                     Id = r.MovieId,
+                                                     r.Movie.PosterUrl,
+                                                     r.Movie.Title,
+                                                     r.Movie.ReleaseDate
+                                                 })
+                                                 .OrderByDescending(g => g.Average(m => m.Rating))
+                                                 .Select(m => new Movie
+                                                 {
+                                                     Id = m.Key.Id,
+                                                     PosterUrl = m.Key.PosterUrl,
+                                                     Title = m.Key.Title,
+                                                     ReleaseDate = m.Key.ReleaseDate,
+                                                     Rating = m.Average(x => x.Rating)
+                                                 })
+                                                 .Take(30)
+                                                 .ToListAsync();
+
+            return topRatedMovies;
+
+
         }
 
         public async Task<Movie> GetMovieWithReviewsAsync(int id)

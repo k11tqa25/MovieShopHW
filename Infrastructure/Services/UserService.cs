@@ -28,6 +28,95 @@ namespace Infrastructure.Services
             _favoriteRepository = favoriteRepository;
         }
 
+        public async Task<List<UserResponseModel>> GetAllUsersAsync()
+        {
+            var users = await _userRepository.ListAllAsync();
+            var response = new List<UserResponseModel>();
+            foreach (var user in users)
+            {
+                response.Add(new UserResponseModel()
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    DateOfBirth = user.DateOfBirth
+                });
+            }
+            return response;
+
+        }
+
+        public async Task<UserResponseModel> GetUserByIdAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            var userResponseModel = new UserResponseModel()
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                DateOfBirth = user.DateOfBirth
+            };
+            return userResponseModel;
+        }
+
+        public async Task<List<ReviewResponseModel>> GetUserReviewsAsync(int id)
+        {
+            var user = await _userRepository.GetUserReviewsAsync(id);
+            var response = new List<ReviewResponseModel>();
+            foreach (var review in user.Reviews)
+            {
+                response.Add(new ReviewResponseModel()
+                {
+                    MovieId = review.MovieId,
+                    UserId = review.UserId,
+                    MovieTitle = review.Movie.Title,
+                    UserName = user.FirstName + " " + user.LastName,
+                    Rating = review.Rating,
+                    Review = review.ReviewText
+                });
+
+            }
+            return response;
+        }
+
+        public async Task<List<PurchaseResponseModel>> GetUserPurchasesAsync(int id)
+        {
+            var user = await _userRepository.GetUserPurchasesAsync(id);
+            var response = new List<PurchaseResponseModel>();
+            foreach (var p in user.Purchases)
+            {
+                response.Add(new PurchaseResponseModel()
+                {
+                    MovieId = p.MovieId,
+                    UserId = p.UserId,
+                    MovieTitle = p.Movie.Title,
+                    UserName = p.User.FirstName + " " + p.User.LastName,
+                    Price = p.TotalPrice,
+                    PurchaseDate = p.PurchaseDateTime
+                });
+            }
+            return response;
+        }
+
+        public async Task<List<FavoriteResponseModel>> GetUserFavoritesAsync(int id)
+        {
+            var user = await _userRepository.GetUserFavoritesAsync(id);
+            var response = new List<FavoriteResponseModel>();
+            foreach (var favorite in user.Favorates)
+            {
+                response.Add(new FavoriteResponseModel()
+                {
+                    MovieId = favorite.MovieId,
+                    UserId = favorite.UserId,
+                    MovieTitle = favorite.Movie.Title,
+                    UserName = favorite.User.FirstName + " " + favorite.User.LastName
+                });
+            }
+            return response;
+        }
+
         public async Task<FavoriteResponseModel> AddFavoriteAsync(FavoriteRequestModel favoriteModel)
         {
             var favorite = new Favorite()
@@ -128,76 +217,6 @@ namespace Infrastructure.Services
             var review = await _reviewRepository.GetReviewByIdAsync(userId, movieId);
             await _reviewRepository.DeleteAsync(review);
             return true;
-        }
-
-        public async Task<List<ReviewResponseModel>> GetUserReviewsAsync(int id)
-        {
-            var user = await _userRepository.GetUserReviewsAsync(id);
-            var response = new List<ReviewResponseModel>();
-            foreach (var review in user.Reviews)
-            {
-                response.Add(new ReviewResponseModel()
-                {
-                    MovieId = review.MovieId,
-                    UserId = review.UserId,
-                    MovieTitle = review.Movie.Title,
-                    UserName = user.FirstName + " " + user.LastName,
-                    Rating = review.Rating,
-                    Review = review.ReviewText
-                });
-
-            }
-            return response;
-        }
-
-        public  async Task<UserResponseModel> GetUserByIdAsync(int id)
-        {
-            var user = await _userRepository.GetByIdAsync(id);
-            var userResponseModel = new UserResponseModel()
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                DateOfBirth = user.DateOfBirth
-            };
-            return userResponseModel;
-        }
-
-        public async Task<List<PurchaseResponseModel>> GetUserPurchasesAsync(int id)
-        {
-            var user = await _userRepository.GetUserPurchasesAsync(id);
-            var response = new List<PurchaseResponseModel>();
-            foreach (var p in user.Purchases)
-            {
-                response.Add(new PurchaseResponseModel()
-                {
-                    MovieId = p.MovieId,
-                    UserId = p.UserId,
-                    MovieTitle = p.Movie.Title,
-                    UserName = p.User.FirstName + " " + p.User.LastName,
-                    Price = p.TotalPrice,
-                    PurchaseDate = p.PurchaseDateTime
-                });
-            }
-            return response;
-        }
-
-        public async Task<List<FavoriteResponseModel>> GetUserFavoritesAsync(int id)
-        {
-            var user = await _userRepository.GetUserFavoritesAsync(id);
-            var response = new List<FavoriteResponseModel>();
-            foreach (var favorite in user.Favorates)
-            {
-                response.Add(new FavoriteResponseModel()
-                {
-                    MovieId = favorite.MovieId,
-                    UserId = favorite.UserId,
-                    MovieTitle = favorite.Movie.Title,
-                    UserName = favorite.User.FirstName + " " + favorite.User.LastName
-                });
-            }
-            return response;
         }
 
         public async Task<UserLoginResponseModel> LoginAsync(string email, string password)

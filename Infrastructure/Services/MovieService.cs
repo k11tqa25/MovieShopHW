@@ -11,10 +11,12 @@ namespace Infrastructure.Services
     public class MovieService : IMovieService
     {
         private readonly IMovieRepository _movieRepository;
+        private readonly ICurrentUser _currentUser;
 
-        public MovieService(IMovieRepository movieRepository)
+        public MovieService(IMovieRepository movieRepository, ICurrentUser currentUser)
         {
             _movieRepository = movieRepository;
+            _currentUser = currentUser;
         }
 
         private MovieDetailsResponseModel MapMovieDetail(Movie movie)
@@ -151,6 +153,74 @@ namespace Infrastructure.Services
                 });
             }
             return responseModel;
+        }
+
+        public async Task<MovieDetailsResponseModel> AddMovieAsync(MovieCreateRequestModel model)
+        {
+            var genres = new List<Genre>();
+            foreach (var g in model.Genres)
+            {
+                genres.Add(new Genre()
+                {
+                    Id = g.Id,
+                    Name = g.Name
+                });
+            }
+
+            var movie = await _movieRepository.AddAsync(new Movie
+            {
+                Title = model.Title,
+                Budget = model.Budget,
+                BackdropUrl = model.BackdropUrl,
+                ImdbUrl = model.ImdbUrl,
+                PosterUrl = model.PosterUrl,
+                TmdbUrl = model.TmdbUrl,
+                CreatedDate  = DateTime.Now,
+                CreatedBy = _currentUser.FullName,
+                Price = model.Price,
+                Genres = genres,
+                ReleaseDate = model.ReleaseTime,
+                Revenue = model.Revenue,                
+            });
+
+            var movieDetails = await _movieRepository.GetByIdAsync(movie.Id);
+
+            if (movieDetails == null) return null;
+            return MapMovieDetail(movieDetails);
+        }
+
+        public async Task<MovieDetailsResponseModel> UpdateMovieAsync(MovieCreateRequestModel model)
+        {
+            var genres = new List<Genre>();
+            foreach (var g in model.Genres)
+            {
+                genres.Add(new Genre()
+                {
+                    Id = g.Id,
+                    Name = g.Name
+                });
+            }
+            var movie = await _movieRepository.UpdateAsync(new Movie
+            {
+                Title = model.Title,
+                Budget = model.Budget,
+                BackdropUrl = model.BackdropUrl,
+                ImdbUrl = model.ImdbUrl,
+                PosterUrl = model.PosterUrl,
+                TmdbUrl = model.TmdbUrl,
+                CreatedDate = DateTime.Now,
+                CreatedBy = _currentUser.FullName,
+                Price = model.Price,
+                Genres = genres,
+                ReleaseDate = model.ReleaseTime,
+                Revenue = model.Revenue,
+            });
+
+            var movieDetails = await _movieRepository.GetByIdAsync(movie.Id);
+
+            if (movieDetails == null) return null;
+
+            return MapMovieDetail(movieDetails);
         }
     }
 

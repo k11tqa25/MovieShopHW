@@ -13,6 +13,8 @@ namespace ApplicationCore.ServiceInterfaces
 
         Task<UserResponseModel> GetUserByIdAsync(int id);
 
+        Task<List<UserResponseModel>> GetAllUsersAsync();
+
         Task<List<ReviewResponseModel>> GetUserReviewsAsync(int id);
 
         Task<List<FavoriteResponseModel>> GetUserFavoritesAsync(int id);

@@ -45,7 +45,7 @@ namespace MovieShopAPI.Controllers
         public async Task<IActionResult> GetUserReviews(int id)
         {
             var response = await _userService.GetUserReviewsAsync(id);
-            if (response == null) return BadRequest();
+            if (response == null) return NotFound("No review is found.");
             return Ok(response);
         }
 
@@ -81,7 +81,7 @@ namespace MovieShopAPI.Controllers
         public async Task<IActionResult> GetFavorite(int id)
         {
             var response = await _userService.GetUserFavoritesAsync(id);
-            if (response == null) return BadRequest();
+            if (response == null) return NotFound("No favorite is found.");
             return Ok(response);
         }
 
@@ -100,7 +100,7 @@ namespace MovieShopAPI.Controllers
         public async Task<IActionResult> GetFavorite(int id, int movieId)
         {
             var response = await _favoriteService.GetFavoriteByIdAsync(id, movieId);
-            if (response == null) return BadRequest();
+            if (response == null) return NotFound("No favorite is found.");
             return Ok(response);
         }
 

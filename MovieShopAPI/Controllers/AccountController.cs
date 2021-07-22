@@ -31,6 +31,25 @@ namespace MovieShopAPI.Controllers
             return CreatedAtRoute(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult>  LoginUser([FromBody] UserLoginRequestModel model)
+        {
+            var logedInUser = await _userService.LoginAsync(model.Email, model.Password);
+            if (logedInUser == null) return NotFound("User not found");
+            return Ok(logedInUser);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var user = await _userService.GetAllUsersAsync();
+            if (user == null) return NotFound($"No user is found.");
+            return Ok(user);
+        }
+
+
         [HttpGet]
         [Route("{id:int}", Name = nameof(GetUserById))]
         public async Task<IActionResult> GetUserById(int id)
